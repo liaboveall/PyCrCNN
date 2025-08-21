@@ -2,14 +2,15 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
 	"name": "PyCrCNN",
-	"build": { "dockerfile": "Dockerfile" },
-
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
 	// Dev Container Features (optional). Keep minimal; base image already has Python.
 	// "features": {},
-
 	// Expose common ports for Jupyter if needed.
-	"forwardPorts": [8888],
-
+	"forwardPorts": [
+		8888
+	],
 	// Speed up pip for PyTorch CPU wheels and disable cache.
 	"containerEnv": {
 		"PIP_NO_CACHE_DIR": "1",
@@ -17,10 +18,8 @@
 		"PIP_DEFAULT_TIMEOUT": "120",
 		"PIP_EXTRA_INDEX_URL": "https://download.pytorch.org/whl/cpu"
 	},
-
 	// Automatically set up the environment after container starts the first time.
 	"postCreateCommand": "bash .devcontainer/setup.sh",
-
 	// Recommend useful extensions and set Python settings.
 	"customizations": {
 		"vscode": {
@@ -32,5 +31,6 @@
 				"ms-toolsai.jupyter-renderers"
 			]
 		}
-	}
+	},
+	"remoteUser": "vscode"
 }

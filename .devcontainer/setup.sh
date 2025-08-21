@@ -4,11 +4,14 @@ set -euo pipefail
 # This script runs inside the dev container once after creation.
 # It installs Pyfhel (with required SEAL flag change), TenSEAL, PyTorch CPU, and this repo in editable mode.
 
-: "${WORKSPACE:-/workspaces/PyCrCNN}" # VS Code mounts workspace at /workspaces/<name>
-
-# Ensure we're in the workspace root
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
-ROOT_DIR="$(pwd)"
+# Determine workspace root
+if [[ -d "/workspaces/PyCrCNN" ]]; then
+  ROOT_DIR="/workspaces/PyCrCNN"
+else
+  cd "$(dirname "${BASH_SOURCE[0]}")/.."
+  ROOT_DIR="$(pwd)"
+fi
+cd "${ROOT_DIR}"
 
 # Use the virtual env created in Dockerfile
 if [[ -d "/workspaces/.venv" ]]; then
@@ -45,8 +48,8 @@ pip install tenseal
 
 # Install dev dependencies and this package
 if [[ -f "${ROOT_DIR}/requirements.txt" ]]; then
-  # Avoid reinstalling Pyfhel from local path in requirements; ignore that line if present
-  grep -v "^Pyfhel" "${ROOT_DIR}/requirements.txt" > /tmp/req.txt || true
+  # Avoid reinstalling Pyfhel and this package (pycrcnn) from PyPI; we'll install locally
+  grep -Ev "^(Pyfhel|pycrcnn)" "${ROOT_DIR}/requirements.txt" > /tmp/req.txt || true
   pip install -r /tmp/req.txt || true
 fi
 
