@@ -4,18 +4,33 @@
 	"name": "PyCrCNN",
 	"build": { "dockerfile": "Dockerfile" },
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
+	// Dev Container Features (optional). Keep minimal; base image already has Python.
 	// "features": {},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	// Expose common ports for Jupyter if needed.
+	"forwardPorts": [8888],
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": ".devcontainer/after_creation.sh"
+	// Speed up pip for PyTorch CPU wheels and disable cache.
+	"containerEnv": {
+		"PIP_NO_CACHE_DIR": "1",
+		"PIP_DISABLE_PIP_VERSION_CHECK": "1",
+		"PIP_DEFAULT_TIMEOUT": "120",
+		"PIP_EXTRA_INDEX_URL": "https://download.pytorch.org/whl/cpu"
+	},
 
-	// Configure tool-specific properties.
-	// "customizations": {},
+	// Automatically set up the environment after container starts the first time.
+	"postCreateCommand": "bash .devcontainer/setup.sh",
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	// Recommend useful extensions and set Python settings.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.jupyter-keymap",
+				"ms-toolsai.jupyter-renderers"
+			]
+		}
+	}
 }
