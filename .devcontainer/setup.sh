@@ -41,22 +41,35 @@ pip install --upgrade pip setuptools wheel
 pip install --index-url https://download.pytorch.org/whl/cpu \
   torch torchvision torchaudio --extra-index-url https://pypi.org/simple || true
 
+PYFHEL_DIR="${HOME}/Pyfhel"
+# If Pyfhel exists in workspace (old behavior), move it out to avoid import shadowing
+if [[ -d "${ROOT_DIR}/Pyfhel" && "${ROOT_DIR}/Pyfhel" != "${PYFHEL_DIR}" ]]; then
+  echo "[setup] Detected Pyfhel in workspace. Moving it to ${PYFHEL_DIR} to avoid import shadowing..."
+  if [[ ! -d "${PYFHEL_DIR}" ]]; then
+    mkdir -p "${HOME}"
+    mv "${ROOT_DIR}/Pyfhel" "${PYFHEL_DIR}" || true
+  else
+    echo "[setup] ${PYFHEL_DIR} already exists; removing workspace copy."
+    rm -rf "${ROOT_DIR}/Pyfhel" || true
+  fi
+fi
+
 # Clone Pyfhel if not present, initialize submodules
-if [[ ! -d "${ROOT_DIR}/Pyfhel" ]]; then
-  git clone --recursive https://github.com/ibarrond/Pyfhel.git "${ROOT_DIR}/Pyfhel"
+if [[ ! -d "${PYFHEL_DIR}" ]]; then
+  git clone --recursive https://github.com/ibarrond/Pyfhel.git "${PYFHEL_DIR}"
 else
-  echo "Pyfhel already cloned; pulling latest..."
-  git -C "${ROOT_DIR}/Pyfhel" pull --rebase || true
-  git -C "${ROOT_DIR}/Pyfhel" submodule update --init --recursive || true
+  echo "[setup] Pyfhel already present at ${PYFHEL_DIR}; pulling latest..."
+  git -C "${PYFHEL_DIR}" pull --rebase || true
+  git -C "${PYFHEL_DIR}" submodule update --init --recursive || true
 fi
 
 # Apply required change: disable SEAL throw on transparent ciphertext
-if grep -q "SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT='ON'" "${ROOT_DIR}/Pyfhel/pyproject.toml"; then
-  sed -i "s/SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT='ON'/SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT='OFF'/" "${ROOT_DIR}/Pyfhel/pyproject.toml"
+if grep -q "SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT='ON'" "${PYFHEL_DIR}/pyproject.toml"; then
+  sed -i "s/SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT='ON'/SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT='OFF'/" "${PYFHEL_DIR}/pyproject.toml"
 fi
 
 # Build and install Pyfhel
-pip install -e "${ROOT_DIR}/Pyfhel"
+pip install -e "${PYFHEL_DIR}"
 
 # Install TenSEAL
 pip install tenseal
@@ -75,7 +88,7 @@ pip install -e "${ROOT_DIR}"
 python - <<'PY'
 import sys, subprocess
 try:
-    subprocess.run([sys.executable, '-m', 'pytest', '-q', '--collect-only'], check=True)
+  subprocess.run([sys.executable, '-m', 'pytest', '-q', '--collect-only', 'tests'], check=True)
     print("[setup] pytest collection succeeded")
 except subprocess.CalledProcessError as e:
     print("[setup] pytest collection failed (non-fatal):", e)
