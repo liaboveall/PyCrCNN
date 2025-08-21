@@ -81,17 +81,21 @@ if [[ -f "${ROOT_DIR}/requirements.txt" ]]; then
   pip install -r /tmp/req.txt || true
 fi
 
-# Install current project in editable mode
-pip install -e "${ROOT_DIR}"
+# Install current project in editable mode (PEP 660 if pyproject.toml exists)
+if [[ -f "${ROOT_DIR}/pyproject.toml" ]]; then
+  pip install --editable "${ROOT_DIR}"
+else
+  pip install -e "${ROOT_DIR}"
+fi
 
 # Optional: pytest discovery sanity check
 python - <<'PY'
 import sys, subprocess
 try:
   subprocess.run([sys.executable, '-m', 'pytest', '-q', '--collect-only', 'tests'], check=True)
-    print("[setup] pytest collection succeeded")
+  print("[setup] pytest collection succeeded")
 except subprocess.CalledProcessError as e:
-    print("[setup] pytest collection failed (non-fatal):", e)
+  print("[setup] pytest collection failed (non-fatal):", e)
 PY
 
 echo "[setup] Dev container setup complete."
