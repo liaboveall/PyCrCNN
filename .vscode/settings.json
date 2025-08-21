@@ -1,4 +1,5 @@
 {
+    // Will be created by .devcontainer/setup.sh
     "python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
     "python.terminal.activateEnvironment": true,
     "python.analysis.typeCheckingMode": "basic",

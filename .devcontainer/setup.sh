@@ -13,9 +13,24 @@ else
 fi
 cd "${ROOT_DIR}"
 
-# Use the virtual env created in Dockerfile
-if [[ -d "/workspaces/.venv" ]]; then
-  source /workspaces/.venv/bin/activate
+# Create and use a virtualenv inside the workspace (postCreate has proper permissions)
+VENV_CANDIDATE="/workspaces/.venv"
+if [[ -d "/workspaces" ]] && [[ ! -d "${VENV_CANDIDATE}" ]]; then
+  python -m venv "${VENV_CANDIDATE}" || true
+fi
+
+# Fallback to home directory venv if workspace venv couldn't be created
+if [[ ! -d "${VENV_CANDIDATE}" ]]; then
+  VENV_CANDIDATE="$HOME/.venvs/pycrcnn"
+  mkdir -p "$(dirname "${VENV_CANDIDATE}")"
+  if [[ ! -d "${VENV_CANDIDATE}" ]]; then
+    python -m venv "${VENV_CANDIDATE}" || true
+  fi
+fi
+
+if [[ -d "${VENV_CANDIDATE}" ]]; then
+  # shellcheck disable=SC1091
+  source "${VENV_CANDIDATE}/bin/activate"
 fi
 
 python -V
@@ -24,7 +39,7 @@ pip -V
 # Install PyTorch CPU wheels and common scientific stack
 pip install --upgrade pip setuptools wheel
 pip install --index-url https://download.pytorch.org/whl/cpu \
-  torch torchvision torchaudio --extra-index-url https://pypi.org/simple
+  torch torchvision torchaudio --extra-index-url https://pypi.org/simple || true
 
 # Clone Pyfhel if not present, initialize submodules
 if [[ ! -d "${ROOT_DIR}/Pyfhel" ]]; then

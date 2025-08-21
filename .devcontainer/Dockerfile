@@ -23,10 +23,5 @@ RUN if ! id -u ${USERNAME} > /dev/null 2>&1; then \
 
 USER ${USERNAME}
 
-# Create a virtualenv path for the workspace to isolate packages
-ENV VENV_PATH=/workspaces/.venv
-RUN python -m venv ${VENV_PATH}
-ENV PATH=${VENV_PATH}/bin:${PATH}
-
-# Pre-upgrade pip/setuptools/wheel
+# Pre-upgrade pip/setuptools/wheel in the base interpreter; venv will be created postCreate
 RUN python -m pip install --upgrade pip setuptools wheel
