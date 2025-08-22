@@ -76,21 +76,12 @@ pip install tenseal
 
 # Install dev dependencies and this package
 if [[ -f "${ROOT_DIR}/requirements.txt" ]]; then
-  # Avoid reinstalling Pyfhel/pycrcnn and torch family (installed separately above)
-  grep -Ev "^(Pyfhel|pycrcnn|torch|torchaudio|torchvision)" "${ROOT_DIR}/requirements.txt" > /tmp/req.txt || true
+  # Avoid reinstalling Pyfhel/pycrcnn and torch family (installed separately above); also skip pytest
+  grep -Ev "^(Pyfhel|pycrcnn|torch|torchaudio|torchvision|pytest)" "${ROOT_DIR}/requirements.txt" > /tmp/req.txt || true
   if [[ -s "/tmp/req.txt" ]]; then
     pip install -r /tmp/req.txt || true
   fi
 fi
-
-# Ensure pytest is available for test discovery even if requirements step was skipped
-python - <<'PY'
-import importlib, subprocess, sys
-try:
-    importlib.import_module('pytest')
-except ImportError:
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pytest'])
-PY
 
 # Install current project in editable mode (PEP 660 if pyproject.toml exists)
 if [[ -f "${ROOT_DIR}/pyproject.toml" ]]; then
@@ -98,15 +89,5 @@ if [[ -f "${ROOT_DIR}/pyproject.toml" ]]; then
 else
   pip install -e "${ROOT_DIR}"
 fi
-
-# Optional: pytest discovery sanity check
-python - <<'PY'
-import sys, subprocess
-try:
-  subprocess.run([sys.executable, '-m', 'pytest', '-q', '--collect-only', 'tests'], check=True)
-  print("[setup] pytest collection succeeded")
-except subprocess.CalledProcessError as e:
-  print("[setup] pytest collection failed (non-fatal):", e)
-PY
 
 echo "[setup] Dev container setup complete."

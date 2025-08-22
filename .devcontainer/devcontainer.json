@@ -25,11 +25,7 @@
 		"vscode": {
 			"settings": {
 				// Ensure VS Code picks up the venv created by setup.sh
-				"python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
-				"python.testing.pytestEnabled": true,
-				"python.testing.pytestArgs": [
-					"tests"
-				]
+				"python.defaultInterpreterPath": "/workspaces/.venv/bin/python"
 			},
 			"extensions": [
 				"ms-python.python",
