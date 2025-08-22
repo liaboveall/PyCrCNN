@@ -9,20 +9,28 @@
 	// "features": {},
 	// Expose common ports for Jupyter if needed.
 	"forwardPorts": [
-		8888
+		8888,
+		5000
 	],
 	// Speed up pip for PyTorch CPU wheels and disable cache.
 	"containerEnv": {
 		"PIP_NO_CACHE_DIR": "1",
 		"PIP_DISABLE_PIP_VERSION_CHECK": "1",
-		"PIP_DEFAULT_TIMEOUT": "120",
-		"PIP_EXTRA_INDEX_URL": "https://download.pytorch.org/whl/cpu"
+		"PIP_DEFAULT_TIMEOUT": "120"
 	},
 	// Automatically set up the environment after container starts the first time.
 	"postCreateCommand": "bash .devcontainer/setup.sh",
 	// Recommend useful extensions and set Python settings.
 	"customizations": {
 		"vscode": {
+			"settings": {
+				// Ensure VS Code picks up the venv created by setup.sh
+				"python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
+				"python.testing.pytestEnabled": true,
+				"python.testing.pytestArgs": [
+					"tests"
+				]
+			},
 			"extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
