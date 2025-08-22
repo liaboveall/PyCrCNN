@@ -33,8 +33,12 @@ if [[ -d "${VENV_CANDIDATE}" ]]; then
   source "${VENV_CANDIDATE}/bin/activate"
 fi
 
+
 python -V
 pip -V
+
+# 升级 numpy 和 sympy 到最新版，避免依赖冲突
+pip install --upgrade numpy sympy
 
 # Install PyTorch CPU wheels and common scientific stack
 pip install --upgrade pip setuptools wheel
